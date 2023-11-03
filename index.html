@@ -1,71 +1,139 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <script>
-      //  
-      $(document).ready(async function () {
-        let data;
-        const queryString = window.location.search;
-        const urlParams = new URLSearchParams(queryString);
-        const product = urlParams.get("product");
-        const startX = 50 - urlParams.get("startX");
-        const startY = 50 - urlParams.get("startY");
-        const image = urlParams.get("image");
-        try {
-          await $.getJSON("./data.json", function (result) {
-            data = result;
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <script>
+    //  
+    $(document).ready(async function () {
+      let data;
+      const queryString = window.location.search;
+      const urlParams = new URLSearchParams(queryString);
+      const product = urlParams.get("product");
+      const image = urlParams.get("image");
+      try {
+        await $.getJSON("./data.json", function (result) {
+          data = result;
+        });
+      } catch (error) {
+        console.log(error);
+      }
+      $("#floorPlan").attr("src", `${image}.jpg`);
+      $("#d_point").css({
+        top: data[product].y - 50 + "px",
+        left: data[product].x - 50 + "px",
+      });
+
+      $("#s_point").css({ top: 750 + "px", left: 1950 + "px" });
+
+      let filters = [];
+
+      let filterName = document.querySelector('#name').value;
+      if (filterName) {
+        filters.push({ name: filterName });
+      }
+
+      let filterNamePrefix = document.querySelector('#namePrefix').value;
+      if (filterNamePrefix) {
+        filters.push({ namePrefix: filterNamePrefix });
+      }
+
+      let options = {};
+      if (document.querySelector('#allAdvertisements').checked) {
+        options.acceptAllAdvertisements = true;
+      } else {
+        options.filters = filters;
+      }
+
+      try {
+        log('Requesting Bluetooth Scan with options: ' + JSON.stringify(options));
+        const scan = await navigator.bluetooth.requestLEScan(options);
+
+        log('Scan started with:');
+        log(' acceptAllAdvertisements: ' + scan.acceptAllAdvertisements);
+        log(' active: ' + scan.active);
+        log(' keepRepeatedDevices: ' + scan.keepRepeatedDevices);
+        log(' filters: ' + JSON.stringify(scan.filters));
+
+        navigator.bluetooth.addEventListener('advertisementreceived', event => {
+          log('Advertisement received.');
+          log('  Device Name: ' + event.device.name);
+          log('  Device ID: ' + event.device.id);
+          log('  RSSI: ' + event.rssi);
+          log('  TX Power: ' + event.txPower);
+          log('  UUIDs: ' + event.uuids);
+          event.manufacturerData.forEach((valueDataView, key) => {
+            logDataView('Manufacturer', key, valueDataView);
           });
-        } catch (error) {
-          console.log(error);
-        }
-        $("#floorPlan").attr("src", `${image}.jpg`);
-        $("#d_point").css({
-          top: data[product].y - 50 + "px",
-          left: data[product].x - 50 + "px",
+          event.serviceData.forEach((valueDataView, key) => {
+            logDataView('Service', key, valueDataView);
+          });
         });
 
-        $("#s_point").css({ top: 750 + startX + "px", left: 1950 + startY + "px" });
-      });
-    </script>
-    <title>Document</title>
-    <style>
-      .point {
-        border: red 5px solid;
-        border-radius: 50%;
-        height: 100px;
-        width: 100px;
-        position: absolute;
-        z-index: 10000;
+        setTimeout(stopScan, 10000);
+        function stopScan() {
+          log('Stopping scan...');
+          scan.stop();
+          log('Stopped.  scan.active = ' + scan.active);
+        }
+      } catch (error) {
+        log('Argh! ' + error);
       }
-      #s_point {
-        font-size: 40px;
-        display: flex;
-        justify-content: center;
-      }
-      #s_point > p {
-        margin-top: auto;
-        margin-bottom: auto;
-        color: red;
-        font-weight: bolder;
-      }
-      #Store{
-        position: absolute;
-        z-index: 10000;
-        top: 200px;
-        left: 200px;
-        font-size: 300px;
-      }
-    </style>
-  </head>
-  <body style="position: relative" class="container">
-    <img id="floorPlan" alt="Example Image" />
-    <div id="d_point" class="point"></div>
-    <div id="s_point" class="point">
-      <p>Start</p>
-    </div>
-    <h1 id="Store">Floor 1</h1>
-  </body>
+    });
+    const logDataView = (labelOfDataSource, key, valueDataView) => {
+      const hexString = [...new Uint8Array(valueDataView.buffer)].map(b => {
+        return b.toString(16).padStart(2, '0');
+      }).join(' ');
+      const textDecoder = new TextDecoder('ascii');
+      const asciiString = textDecoder.decode(valueDataView.buffer);
+      log(`  ${labelOfDataSource} Data: ` + key +
+        '\n    (Hex) ' + hexString +
+        '\n    (ASCII) ' + asciiString);
+    };
+  </script>
+  <title>Document</title>
+  <style>
+    .point {
+      border: red 5px solid;
+      border-radius: 50%;
+      height: 100px;
+      width: 100px;
+      position: absolute;
+      z-index: 10000;
+    }
+
+    #s_point {
+      font-size: 40px;
+      display: flex;
+      justify-content: center;
+    }
+
+    #s_point>p {
+      margin-top: auto;
+      margin-bottom: auto;
+      color: red;
+      font-weight: bolder;
+    }
+
+    #Store {
+      position: absolute;
+      z-index: 10000;
+      top: 200px;
+      left: 200px;
+      font-size: 300px;
+    }
+  </style>
+</head>
+
+<body style="position: relative" class="container">
+  <img id="floorPlan" alt="Example Image" />
+  <div id="d_point" class="point"></div>
+  <div id="s_point" class="point">
+    <p>Start</p>
+  </div>
+  <h1 id="Store">Floor 1</h1>
+</body>
+
 </html>

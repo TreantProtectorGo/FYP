@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script>
+      //  
+      $(document).ready(async function () {
+        let data;
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        const product = urlParams.get("product");
+        const image = urlParams.get("image");
+        try {
+          await $.getJSON("./data.json", function (result) {
+            data = result;
+          });
+        } catch (error) {
+          console.log(error);
+        }
+        $("#floorPlan").attr("src", `${image}.jpg`);
+        $("#d_point").css({
+          top: data[product].y - 50 + "px",
+          left: data[product].x - 50 + "px",
+        });
+
+        const startX = 0; // 設定 x 的值
+        const startY = 0; // 設定 y 的值
+
+        $("#s_point").css({ top: 750 + startX + "px", left: 1950 + startY + "px" });
+
+        setTimeout(function () {
+            window.scrollTo(5000, 1000);
+        },200);
+      });
+    </script>
+    <title>Document</title>
+    <style>
+      .point {
+        border: red 5px solid;
+        border-radius: 50%;
+        height: 100px;
+        width: 100px;
+        position: absolute;
+        z-index: 10000;
+      }
+      #s_point {
+        font-size: 40px;
+        display: flex;
+        justify-content: center;
+      }
+      #s_point > p {
+        margin-top: auto;
+        margin-bottom: auto;
+        color: red;
+        font-weight: bolder;
+      }
+      #Store{
+        position: absolute;
+        z-index: 10000;
+        top: 200px;
+        left: 200px;
+        font-size: 300px;
+      }
+
+      @media only screen and (max-width: 600px) {
+      .container {
+        transform: scale(0.8); /* 使用scale函數將網站縮小到80%的比例 */
+        transform-origin: top, left; /* 設置縮放的原點在左上角 */
+      }
+    }
+    </style>
+  </head>
+  <body style="position: relative" class="container">
+    <img id="floorPlan" alt="Example Image" />
+    <div id="d_point" class="point"></div>
+    <div id="s_point" class="point">
+      <p>Start</p>
+    </div>
+    <h1 id="Store">Floor 1</h1>
+  </body>
+</html>

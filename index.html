@@ -34,30 +34,26 @@
     <title>Document</title>
     <style>
       .point {
-        border: red 5px solid;
-        border-radius: 50%;
-        height: 100px;
-        width: 100px;
-        position: absolute;
-        z-index: 10000;
-      }
-      #s_point {
-        font-size: 40px;
-        display: flex;
-        justify-content: center;
-      }
+    border: red 5px solid;
+    border-radius: 50%;
+    height: 200px; /* Increased height by 100px */
+    width: 200px; /* Increased width by 100px */
+    position: absolute;
+    z-index: 10000;
+    box-sizing: border-box; /* Ensure the border is included in the element's dimensions */
+    top: 50%; /* Center the point vertically */
+    left: 50%; /* Center the point horizontally */
+    transform: translate(-50%, -50%); /* Center the point precisely */
+  }
+
+  /* Additional styles for the text inside the point */
+  .point p {
+    margin: 0;
+    color: red;
+    font-weight: bolder;
+    text-align: center;
+  }
       #s_point > p {
-        margin-top: auto;
-        margin-bottom: auto;
-        color: red;
-        font-weight: bolder;
-      }
-      #t_point {
-        font-size: 40px;
-        display: flex;
-        justify-content: center;
-      }
-      #t_point > p {
         margin-top: auto;
         margin-bottom: auto;
         color: red;

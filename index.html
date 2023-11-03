@@ -11,8 +11,8 @@
         const queryString = window.location.search;
         const urlParams = new URLSearchParams(queryString);
         const product = urlParams.get("product");
-        const startX = urlParams.get("startX") * 10;
-        const startY = urlParams.get("startY") * 10;
+        const startX = urlParams.get("startX") * 5;
+        const startY = urlParams.get("startY") * 5;
         const image = urlParams.get("image");
         try {
           await $.getJSON("./data.json", function (result) {

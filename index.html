@@ -11,6 +11,8 @@
         const queryString = window.location.search;
         const urlParams = new URLSearchParams(queryString);
         const product = urlParams.get("product");
+        const startX = urlParams.get("startX") * 10;
+        const startY = urlParams.get("startY") * 10;
         const image = urlParams.get("image");
         try {
           await $.getJSON("./data.json", function (result) {
@@ -25,14 +27,7 @@
           left: data[product].x - 50 + "px",
         });
 
-        const startX = 0; // 設定 x 的值
-        const startY = 0; // 設定 y 的值
-
         $("#s_point").css({ top: 750 + startX + "px", left: 1950 + startY + "px" });
-
-        setTimeout(function () {
-            window.scrollTo(5000, 1000);
-        },200);
       });
     </script>
     <title>Document</title>
@@ -63,13 +58,6 @@
         left: 200px;
         font-size: 300px;
       }
-
-      @media only screen and (max-width: 600px) {
-      .container {
-        transform: scale(0.8); /* 使用scale函數將網站縮小到80%的比例 */
-        transform-origin: top, left; /* 設置縮放的原點在左上角 */
-      }
-    }
     </style>
   </head>
   <body style="position: relative" class="container">
